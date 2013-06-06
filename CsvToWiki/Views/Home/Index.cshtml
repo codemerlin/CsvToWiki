@@ -1,0 +1,17 @@
+﻿
+
+@{
+    ViewBag.Title = "Home Page";
+    
+}
+<h3>Choose Exception ::</h3>
+@using (Html.BeginForm("Index", "Home", FormMethod.Post, null)) {
+    @Html.DropDownList("selectedException", (IEnumerable<SelectListItem>) ViewBag.ExceptionNames)
+    <input type="submit" value="Get Wiki Page" />
+}
+
+@if (!string.IsNullOrWhiteSpace(ViewBag.WikiPageText)) {
+    <textarea> @ViewBag.WikiPageText</textarea>
+}
+
+
