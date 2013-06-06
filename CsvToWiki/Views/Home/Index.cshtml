@@ -11,7 +11,9 @@
 }
 
 @if (!string.IsNullOrWhiteSpace(ViewBag.WikiPageText)) {
-    <textarea> @ViewBag.WikiPageText</textarea>
+    <pre>
+        @ViewBag.WikiPageText
+    </pre>
 }
 
 

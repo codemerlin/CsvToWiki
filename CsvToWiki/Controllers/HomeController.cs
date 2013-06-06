@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using CsvToWiki.Models;
 using LINQtoCSV;
+using Microsoft.Ajax.Utilities;
+using WebGrease.Css.Extensions;
 
 namespace CsvToWiki.Controllers
 {
@@ -18,15 +20,59 @@ namespace CsvToWiki.Controllers
 
             return View();
         }
+        private string trimUrl(string refUrl) {
+            return refUrl.Replace("https://grants3.hrsa.gov/2010", "").Replace("https://grants3.hrsa.gov", "");
+        }
 
+        private string replaceAt(string stackTraceWithAt)
+        {
+            return stackTraceWithAt.Replace(" at ", "\n at ");
+        }
         [HttpPost]
         public ActionResult Index(string selectedException)
         {
             var logRecords = GetLogRecords();
+            ViewBag.WikiPageText = "h2. " + selectedException;
 
-            logRecords.Where(k => k.ExceptionType == selectedException);
+             logRecords.Where(k => k.ExceptionType == selectedException)
+                .GroupBy(item => item.StackTrace).Select(grouped => new
+                {
+                    Urls = String.Join("\n# ", grouped.Select(url => trimUrl(url.Referrerurlvalue)).Distinct()),
+                    Count = grouped.Count(),
+                    StackTrace = grouped.Key
+                }).ForEach(processedItem =>
+                {
+                   
+                ViewBag.WikiPageText += String.Format(@"
 
-            ViewBag.WikiPageText = "";
+----
+
+h5. Referral URL/Suspected Pages
+
+# {0}
+
+
+
+h5. Count 
+
+{1}
+
+h5. Stack Trace
+
+{{code:title=Stack Trace|borderStyle=solid}}
+   
+   
+{2}
+
+
+{{code}}
+
+
+h5. Synopsis ", processedItem.Urls, processedItem.Count, replaceAt(processedItem.StackTrace)); 
+                });
+            
+
+            //ViewBag.WikiPageText = "h2. "+selectedException;
 
             return View();
         }
